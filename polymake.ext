@@ -1,0 +1,12 @@
+URI http://polymake.org/polytopes/paffenholz/data/polymake/extensions/lattice_normalization#0.1
+
+NAME lattice_normalization
+
+CREDIT lattice_normalization
+ provides a method for computing normal forms of lattice polytopes
+ (c) 2014 Silke Horn, Andreas Paffenholz, TU Darmstadt, www.mathematik.tu-darmstadt.de/~paffenholz
+
+REQUIRE 
+  http://polymake.org/polytopes/paffenholz/data/polymake/extensions/FlintWrapper
+
+
