@@ -7,6 +7,6 @@ This extension depends on the extension polymake_flint_wrapper, so please instal
 
 To import this extension into polymake please do 
 
-import_extension("<path_to_this_extension>");
+import_extension("\<path_to_this_extension\>");
 
 at the polymake prompt.
