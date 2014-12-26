@@ -20,6 +20,7 @@
 #include <polymake/Matrix.h>
 #include <polymake/Integer.h>
 #include <polymake/common/flint_functions.h>
+#include <polymake/polytope/DistanceMatrixPermutation.h>
 
 
 namespace polymake { 
