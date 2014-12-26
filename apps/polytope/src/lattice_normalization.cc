@@ -108,7 +108,14 @@ namespace polymake {
       return dmp_list;
     }
 
+    Vector<Integer> apply_permutation ( const Vector<Integer> & v, std::vector<int> perm ) {
 
+      Vector<Integer> w(v.size());
+      for ( int i = 0; i < v.size(); ++i )
+	w[i] = v[perm[i]];
+
+      return w;
+    }
 
     
     Matrix<Integer> lattice_normal_form ( const perl::Object & p ) {
@@ -125,6 +132,7 @@ namespace polymake {
       
       std::vector<DistanceMatrixPermutation> dmp_list = get_all_permutations_for_row(0,dmp,A);
 
+      cout << "current base vector: " << apply_permutation(A.row(0),dmp_list[0].get_cperm()) << endl;
       for ( int i = 0; i < dmp_list.size(); ++i ) {
 	cout << dmp_list[i] << endl;
       }
