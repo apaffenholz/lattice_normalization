@@ -125,10 +125,7 @@ namespace polymake {
       std::vector<DistanceMatrixPermutation> dmp_list = get_all_permutations_for_row(0,dmp,A);
 
       for ( int i = 0; i < dmp_list.size(); ++i ) {
-	std::vector<int> cperm = dmp_list[i].get_cperm();
-	for ( int j = 0; j < cperm.size(); ++j ) 
-	  cout << cperm[j] << " ";
-	cout << endl;
+	cout << dmp_list[i] << endl;
       }
 
       return common::HermiteNormalForm(A);

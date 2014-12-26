@@ -34,23 +34,28 @@ class DistanceMatrixPermutation {
   const std::vector<int> get_blocks() const { return blocks; }
   const int rowsize() const { return rperm.size(); }
   const int colsize() const { return cperm.size(); }
+  const int blocksize() const { return blocks.size(); }
 
   friend
-    std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dpm) {
+    std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dmp) {
 
+    const std::vector<int> rperm = dmp.get_rperm();
+    const std::vector<int> cperm = dmp.get_cperm();
+    const std::vector<int> blocks = dmp.get_blocks();    
+    
     os << "row permutation: ";
-    for ( int j = 0; j < dpm.get_rperm().size(); ++j ) 
-      os << dpm.get_rperm()[j] << " ";
+    for ( int j = 0; j < dmp.rowsize(); ++j ) 
+      os << rperm[j] << " ";
     os << std::endl;
 
     os << "column permutation: ";
-    for ( int j = 0; j < dpm.get_cperm().size(); ++j ) 
-      os << dpm.get_cperm()[j] << " ";
+    for ( int j = 0; j < dmp.colsize(); ++j ) 
+      os << cperm[j] << " ";
     os << std::endl;
 
     os << "blocks: ";
-    for ( int j = 0; j < dpm.get_blocks().size(); ++j ) 
-      os << dpm.get_blocks()[j] << " ";
+    for ( int j = 0; j < dmp.blocksize(); ++j ) 
+      os << blocks[j] << " ";
     os << std::endl;
 
     return os;
