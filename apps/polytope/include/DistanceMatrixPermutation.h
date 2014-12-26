@@ -15,6 +15,7 @@
 ****************************************************************************/
 
 #include <vector>
+#include <iostream>
 
 class DistanceMatrixPermutation {
   
@@ -31,5 +32,17 @@ class DistanceMatrixPermutation {
   const std::vector<int> get_rperm()  const { return rperm; }
   const std::vector<int> get_cperm()  const { return cperm; }
   const std::vector<int> get_blocks() const { return blocks; }
+
+
+  friend
+    std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dpm) {
+
+    os << "cperm: ";
+    for ( int j = 0; j < dpm.get_cperm().size(); ++j ) 
+      os << dpm.get_cperm()[j] << " ";
+    os << std::endl;
+
+    return os;
+   }
 
 };
