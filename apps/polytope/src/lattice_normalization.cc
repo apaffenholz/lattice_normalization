@@ -85,6 +85,16 @@ namespace polymake {
 	rperm.push_back(j);
 	std::vector<int> blocks;
 
+	Integer e = perm.first[0];
+	for( int k = 1; k < A.cols(); ++k )
+	  if ( perm.first[k] == e ) {
+	    continue;
+	  } else {
+	    blocks.push_back(k-1);
+	    e = perm.first[k];
+	  }
+	blocks.push_back(A.cols()-1);
+
 	DistanceMatrixPermutation dmp(rperm,perm.second,blocks);
 
 	if ( perm.first > base ) {
@@ -107,15 +117,6 @@ namespace polymake {
 	throw std::runtime_error("the given polytope is not a lattice polytope");
 
       Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
-
-      std::pair<Vector<Integer>,std::vector<int> > fmp = FindMaxPermutation(A.row(0));
-      cout << fmp.first << endl;
-      std::vector<int> perm = fmp.second;
-      for ( int j = 0; j < perm.size(); ++j ) 
-	cout << perm[j] << " ";
-      cout << endl;
-      
-      
 
       std::vector<int> rperm;
       std::vector<int> cperm;
