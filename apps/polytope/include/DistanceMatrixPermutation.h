@@ -26,13 +26,14 @@ class DistanceMatrixPermutation {
   
   
  public :
-  DistanceMatrixPermutation(const std::vector<int> rperm_in, const std::vector<int> cperm_in, const std::vector<int> blocks_in) : rperm(rperm_in), cperm(cperm_in), blocks(blocks_in) { }
+ DistanceMatrixPermutation(const std::vector<int> rperm_in, const std::vector<int> cperm_in, const std::vector<int> blocks_in) : rperm(rperm_in), cperm(cperm_in), blocks(blocks_in) { }
   DistanceMatrixPermutation(const DistanceMatrixPermutation & dmp) : rperm(dmp.get_rperm()), cperm(dmp.get_cperm()), blocks(dmp.get_blocks()) { } 
   
   const std::vector<int> get_rperm()  const { return rperm; }
   const std::vector<int> get_cperm()  const { return cperm; }
   const std::vector<int> get_blocks() const { return blocks; }
-
+  const int rowsize() const { return rperm.size(); }
+  const int colsize() const { return cperm.size(); }
 
   friend
     std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dpm) {
