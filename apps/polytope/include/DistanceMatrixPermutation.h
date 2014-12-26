@@ -37,9 +37,19 @@ class DistanceMatrixPermutation {
   friend
     std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dpm) {
 
-    os << "cperm: ";
+    os << "row permutation: ";
+    for ( int j = 0; j < dpm.get_rperm().size(); ++j ) 
+      os << dpm.get_rperm()[j] << " ";
+    os << std::endl;
+
+    os << "column permutation: ";
     for ( int j = 0; j < dpm.get_cperm().size(); ++j ) 
       os << dpm.get_cperm()[j] << " ";
+    os << std::endl;
+
+    os << "blocks: ";
+    for ( int j = 0; j < dpm.get_blocks().size(); ++j ) 
+      os << dpm.get_blocks()[j] << " ";
     os << std::endl;
 
     return os;
