@@ -30,7 +30,7 @@ namespace polymake {
 
   namespace polytope {
 
-
+    // apply a permutation perm to a vector v
     Vector<Integer> apply_permutation ( const Vector<Integer> & v, std::vector<int> perm ) {
       
       Vector<Integer> w(v.size());
@@ -110,6 +110,9 @@ namespace polymake {
     }
 
 
+    // given an initial permutation dmp_in with partially filled rperm
+    // compute all possible new permutations for rows with index i or higher
+    // FIXME: needs to be rewritten as the function does not respect the initial row permutation in dmp_in
     std::vector<DistanceMatrixPermutation> get_all_permutations_for_row ( int i, const DistanceMatrixPermutation & dmp_in, const Matrix<Integer> & A ) {
 
       std::vector<DistanceMatrixPermutation> dmp_list;
@@ -147,14 +150,16 @@ namespace polymake {
     }
 
     
-    
+    // return the lattice normal form of a lattice polytope
     Matrix<Integer> lattice_normal_form ( const perl::Object & p ) {
-      
+
+      // polytope must be lattice, otherwise the distance matrix is not defined
       if ( ! p.give("LATTICE") ) 
 	throw std::runtime_error("the given polytope is not a lattice polytope");
 
       Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
 
+      // initialize a matrix permutation with the identity permutation 
       std::vector<int> rperm;
       std::vector<int> cperm(A.cols());
       int k = 0;
@@ -167,10 +172,12 @@ namespace polymake {
       
       DistanceMatrixPermutation dmp(rperm,cperm,blocks);
 
+      
 #ifdef DEBUG
       cout << "[lattice_normalization] initial permutation matrix: " << endl << dmp << endl << "-----------------------" << endl;
 #endif
-            
+
+      // try for row 0
       std::vector<DistanceMatrixPermutation> dmp_list = get_all_permutations_for_row(0,dmp,A);
 
       cout << "current base vector for row 0: " << apply_permutation(A.row(0),dmp_list[0].get_cperm()) << endl;
@@ -178,6 +185,8 @@ namespace polymake {
 	cout << dmp_list[i] << endl;
       }
 
+      // try for row 1
+      // currently other rows won't work as we don't yet respect rperm in choosing the next row
       std::vector<DistanceMatrixPermutation> dmp_list_1 = get_all_permutations_for_row(1,dmp_list[0],A);
 
       cout << "current base vector for row 1: " << apply_permutation(A.row(1),dmp_list_1[0].get_cperm()) << endl;
@@ -185,7 +194,7 @@ namespace polymake {
 	cout << dmp_list_1[i] << endl;
       }
       
-      
+      // just to return something
       return common::Flint_HermiteNormalForm(A);
     } 
     
