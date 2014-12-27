@@ -178,7 +178,7 @@ namespace polymake {
 	cout << dmp_list[i] << endl;
       }
 
-      return common::HermiteNormalForm(A);
+      return common::Flint_HermiteNormalForm(A);
     } 
     
     UserFunction4perl(" ", &lattice_normal_form, "lattice_normal_form(Polytope)");
