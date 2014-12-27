@@ -173,11 +173,19 @@ namespace polymake {
             
       std::vector<DistanceMatrixPermutation> dmp_list = get_all_permutations_for_row(0,dmp,A);
 
-      cout << "current base vector: " << apply_permutation(A.row(0),dmp_list[0].get_cperm()) << endl;
+      cout << "current base vector for row 0: " << apply_permutation(A.row(0),dmp_list[0].get_cperm()) << endl;
       for ( int i = 0; i < dmp_list.size(); ++i ) {
 	cout << dmp_list[i] << endl;
       }
 
+      std::vector<DistanceMatrixPermutation> dmp_list_1 = get_all_permutations_for_row(1,dmp_list[0],A);
+
+      cout << "current base vector for row 1: " << apply_permutation(A.row(1),dmp_list_1[0].get_cperm()) << endl;
+      for ( int i = 0; i < dmp_list_1.size(); ++i ) {
+	cout << dmp_list_1[i] << endl;
+      }
+      
+      
       return common::Flint_HermiteNormalForm(A);
     } 
     
