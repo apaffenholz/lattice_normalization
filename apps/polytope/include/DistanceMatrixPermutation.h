@@ -28,7 +28,10 @@ class DistanceMatrixPermutation {
                             // are constant on the already permuted rows
                             // the vector blocks lists these columns in the form
                             // i1,i2,...,ik, where the already permuted columns are constant on 0..i1, i1+1..i2, i2+1..i3, ...
-  
+
+  /*
+    Note that permutations are given in inverted form: cperm[i] is the index that should go into position i in the permuted vector
+   */
   
  public :
   // Constructors
