@@ -14,7 +14,7 @@
   GNU General Public License for more details.
 ****************************************************************************/
 
-#define DEBUG
+//#define DEBUG
 
 #include <polymake/client.h>
 #include <polymake/Matrix.h>
@@ -40,9 +40,10 @@ namespace polymake {
       return w;
     }
 
+    
 
     // returns a permutation pi for the vector v such that pi(v) 
-    // is lex maixmal among all permutations of the entries of v
+    // is lex maximal among all permutations of the entries of v
     std::pair<Vector<Integer>, std::vector<int> > FindMaxPermutation ( const Vector<Integer> & v,
 								       const std::vector<int> perm_in,
 								       const std::vector<int> blocks ) {
@@ -57,7 +58,7 @@ namespace polymake {
       for ( int i = 0; i < blocks.size(); i++ ) {
 	cout << blocks[i] << " ";
       }
-      cout << endl << "-----------------------" << endl;
+      //      cout << endl << "-----------------------" << endl;
 #endif
 
       
@@ -113,17 +114,29 @@ namespace polymake {
     // given an initial permutation dmp_in with partially filled rperm
     // compute all possible new permutations for rows with index i or higher
     // FIXME: needs to be rewritten as the function does not respect the initial row permutation in dmp_in
-    std::vector<DistanceMatrixPermutation> get_all_permutations_for_row ( int i, const DistanceMatrixPermutation & dmp_in, const Matrix<Integer> & A ) {
+    void get_all_permutations_for_row ( int i,
+					const DistanceMatrixPermutation & dmp_in,
+					const Matrix<Integer> & A,
+					std::vector<DistanceMatrixPermutation>& dmp_list,
+					Vector<Integer>& base
+					) {
 
-      std::vector<DistanceMatrixPermutation> dmp_list;
-      Vector<Integer> base(A.cols());
+      for ( Entire<Set<int> >::const_iterator sit = entire(dmp_in.get_still_available_rows()); !sit.at_end(); ++sit ) {
+	std::pair<Vector<Integer>, std::vector<int> > perm = FindMaxPermutation(A.row(*sit), dmp_in.get_cperm(), dmp_in.get_blocks() );
 
-      for ( int j = i; j < A.rows(); ++j ) {
-	std::pair<Vector<Integer>, std::vector<int> > perm = FindMaxPermutation(A.row(j), dmp_in.get_cperm(), dmp_in.get_blocks() );
+#ifdef DEBUG
+	cout << "[get_all_permutations_for_row] found permuted vector: " << perm.first << endl << "comparing to base: " << base << endl;
+#endif
+	
 	if ( perm.first < base ) continue;
 
+	if ( perm.first > base ) {
+	  base = perm.first;
+	  dmp_list.clear();
+	}
+	
 	std::vector<int> rperm = dmp_in.get_rperm();
-	rperm.push_back(j);
+	rperm.push_back(*sit);
 	std::vector<int> blocks;
 
 	Integer e = perm.first[0];
@@ -136,17 +149,11 @@ namespace polymake {
 	  }
 	blocks.push_back(A.cols()-1);
 
-	DistanceMatrixPermutation dmp(rperm,perm.second,blocks);
-
-	if ( perm.first > base ) {
-	  base = perm.first;
-	  dmp_list.clear();
-	}
+	DistanceMatrixPermutation dmp(rperm,perm.second,blocks,dmp_in.get_still_available_rows()-*sit);
 
 	dmp_list.push_back(dmp);
       }
 
-      return dmp_list;
     }
 
     
@@ -159,40 +166,53 @@ namespace polymake {
 
       Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
 
-      // initialize a matrix permutation with the identity permutation 
+
+      // initialize a permutation fo the rows, will be built up sequentially
       std::vector<int> rperm;
+      
+      // initialize a permutation of the columns with the identity permutation
       std::vector<int> cperm(A.cols());
       int k = 0;
       for(std::vector<int>::iterator it = cperm.begin(); it != cperm.end(); ++it){
         *it = k++;
       }
 
+      // a permutation of row j applied to all rows must not change rows 1 to j-1
+      // hence, a permutation of row j can only permute entries in blocks for
+      // which the columns above the entries in a block are equal
+      // 
+      // initially we can permute the complete row, so we have a single
+      // block of size equal to the number of columns
       std::vector<int> blocks(1);
       blocks[0] = A.cols()-1;
+
       
-      DistanceMatrixPermutation dmp(rperm,cperm,blocks);
+      DistanceMatrixPermutation dmp(rperm,cperm,blocks,sequence(0,A.rows()));
+      std::vector<DistanceMatrixPermutation> dmp_list_in;
+      dmp_list_in.push_back(dmp);
+
 
       
 #ifdef DEBUG
       cout << "[lattice_normalization] initial permutation matrix: " << endl << dmp << endl << "-----------------------" << endl;
 #endif
 
-      // try for row 0
-      std::vector<DistanceMatrixPermutation> dmp_list = get_all_permutations_for_row(0,dmp,A);
-
-      cout << "current base vector for row 0: " << apply_permutation(A.row(0),dmp_list[0].get_cperm()) << endl;
-      for ( int i = 0; i < dmp_list.size(); ++i ) {
-	cout << dmp_list[i] << endl;
+      for ( int i = 0; i < A.rows(); ++i ) {
+	std::vector<DistanceMatrixPermutation> dmp_list;
+	Vector<Integer> base(A.cols());
+	for ( std::vector<DistanceMatrixPermutation>::const_iterator dmp_it = dmp_list_in.begin(); dmp_it != dmp_list_in.end(); ++dmp_it ) 
+	  get_all_permutations_for_row(0,*dmp_it,A,dmp_list,base);
+	dmp_list_in = dmp_list;
       }
 
-      // try for row 1
-      // currently other rows won't work as we don't yet respect rperm in choosing the next row
-      std::vector<DistanceMatrixPermutation> dmp_list_1 = get_all_permutations_for_row(1,dmp_list[0],A);
 
-      cout << "current base vector for row 1: " << apply_permutation(A.row(1),dmp_list_1[0].get_cperm()) << endl;
-      for ( int i = 0; i < dmp_list_1.size(); ++i ) {
-	cout << dmp_list_1[i] << endl;
+#ifdef DEBUG
+      for ( int i = 0; i < dmp_list_in.size(); ++i ) {
+	cout << "printing permutation " << i << endl;
+	cout << dmp_list_in[i] << endl;
+	cout << dmp_list_in[i].apply_permutation(A) << endl;
       }
+#endif
       
       // just to return something
       return common::flint::HermiteNormalForm(A);
