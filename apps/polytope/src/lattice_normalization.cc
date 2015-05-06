@@ -31,6 +31,7 @@ namespace polymake {
   namespace polytope {
 
     // apply a permutation perm to a vector v
+    // note that permutations are noted in inverted form: perm[i] is the element that should be placed in position i
     Vector<Integer> apply_permutation ( const Vector<Integer> & v, std::vector<int> perm ) {
       
       Vector<Integer> w(v.size());
@@ -58,18 +59,23 @@ namespace polymake {
       for ( int i = 0; i < blocks.size(); i++ ) {
 	cout << blocks[i] << " ";
       }
-      //      cout << endl << "-----------------------" << endl;
 #endif
 
-      
       const int dim = v.size();
+
+      // apply the current column permutation to v
+      // we can then permute entries of v within each block to generate a lex larger vector
       Vector<Integer> base = apply_permutation(v, perm_in);
+
+      // initial array to store the permutation applied to the permuted row v
+      // initialize with identity
       std::vector<int> tperm(dim);
       int k = 0;
-      for(std::vector<int>::iterator it = tperm.begin(); it != tperm.end(); ++it){
+      for(std::vector<int>::iterator it = tperm.begin(); it != tperm.end(); ++it)
         *it = k++;
-      }
 
+      //find a perm maximising the vector using simple insertion sort
+      // FIXME maybe we can do this more efficiently
       int j = 0;
       for ( int i = 0; i < blocks.size(); ++i ) {
 	int k = j;
@@ -88,12 +94,13 @@ namespace polymake {
 	}
       }
 
-
+      // concatenate initial permutation with the one computed for the permuted row
       std::vector<int> perm(dim);
       for ( int i = 0; i < dim; i++ ) {
 	perm[i] = perm_in[tperm[i]];
       }
 
+      // prepare return
       std::pair<Vector<Integer>, std::vector<int> > ret;
       ret.first = base;
       ret.second = perm;
@@ -106,14 +113,12 @@ namespace polymake {
       cout << endl << "-----------------------" << endl;
 #endif
 
-
       return ret;
     }
 
 
     // given an initial permutation dmp_in with partially filled rperm
     // compute all possible new permutations for rows with index i or higher
-    // FIXME: needs to be rewritten as the function does not respect the initial row permutation in dmp_in
     void get_all_permutations_for_row ( int i,
 					const DistanceMatrixPermutation & dmp_in,
 					const Matrix<Integer> & A,
