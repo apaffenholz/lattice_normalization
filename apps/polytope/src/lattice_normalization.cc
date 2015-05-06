@@ -236,7 +236,16 @@ namespace polymake {
     }
     
     
-    UserFunction4perl(" ", &affine_lattice_normal_form, "affine_lattice_normal_form(Polytope)");
-    UserFunction4perl(" ", &lattice_isomorphic, "lattice_isomorphic(Polytope, Polytope)");
+    UserFunction4perl("# @category Lattice Polytopes\n"
+      "# Takes a lattice polytope and computes the affine normal form of the vertices as defined in ."
+      "\tA. Grinis, Kasprzyk, Normal Forms of Polytopes, arxiv:1301.6641, Jan 2013\n"
+      "# @param LatticePolytope P\n"
+      "# @return Matrix<Integer>", &affine_lattice_normal_form, "affine_lattice_normal_form(Polytope)");
+    
+    UserFunction4perl("# @category Lattice Polytopes\n"
+      "# Checks whether two lattice polytopes are lattice isomoprhic by comparing their normal forms.\n"
+      "# @param LatticePolytope P\n"
+      "# @param LatticePolytope Q\n"
+      "# @return bool", &lattice_isomorphic, "lattice_isomorphic(Polytope, Polytope)");
   }
 }
