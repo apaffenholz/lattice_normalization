@@ -165,7 +165,8 @@ namespace polymake {
 	throw std::runtime_error("the given polytope is not a lattice polytope");
 
       Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
-
+      Matrix<Integer> V = p.give("VERTICES");
+      V = V.minor(All,~scalar2set(0));
 
       // initialize a permutation fo the rows, will be built up sequentially
       std::vector<int> rperm;
@@ -206,19 +207,33 @@ namespace polymake {
       }
 
 
-#ifdef DEBUG
+      Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(V));
+      
       for ( int i = 0; i < dmp_list_in.size(); ++i ) {
+	Matrix<Integer> U = common::flint::HermiteNormalForm(dmp_list_in[i].apply_vertex_permutation(V));
+	if ( U < W ) { W = U; }
+#ifdef DEBUG
 	cout << "printing permutation " << i << endl;
 	cout << dmp_list_in[i] << endl;
 	cout << dmp_list_in[i].apply_permutation(A) << endl;
-      }
+	cout << W << endl;
 #endif
+      }
       
       // just to return something
-      return common::flint::HermiteNormalForm(A);
-    } 
+      return (ones_vector<Integer>(W.rows()))|W;
+    }
+
+    bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
+
+      Matrix<Integer> pm = lattice_normal_form(p);
+      Matrix<Integer> qm = lattice_normal_form(q);
+      
+      return pm == qm;
+    }
+    
     
     UserFunction4perl(" ", &lattice_normal_form, "lattice_normal_form(Polytope)");
-        
+    UserFunction4perl(" ", &lattice_isomorphic, "lattice_isomorphic(Polytope, Polytope)");
   }
 }

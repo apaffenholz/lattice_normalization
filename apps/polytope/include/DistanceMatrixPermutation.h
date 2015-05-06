@@ -18,6 +18,8 @@
 #include <iostream>
 #include <polymake/Set.h>
 #include <polymake/Matrix.h>
+#include <polymake/Integer.h>
+#include <polymake/Rational.h>
 
 namespace polymake {
   namespace polytope {
@@ -72,6 +74,16 @@ namespace polymake {
 	return C;
       }
       
+      const Matrix<Integer> apply_vertex_permutation(const Matrix<Integer>& A) {
+
+	Matrix<Integer> B(A.rows(),A.cols());
+	for ( int i = 0; i < A.rows(); ++i )
+	  B.row(i) = A.row(cperm[i]);
+
+	return B;
+      }
+      
+
       // printing
       friend
 	std::ostream& operator<< (std::ostream & os, const DistanceMatrixPermutation & dmp) {

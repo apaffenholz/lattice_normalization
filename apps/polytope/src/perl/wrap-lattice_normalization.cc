@@ -28,5 +28,11 @@ namespace polymake { namespace polytope { namespace {
    }
    FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (perl::Object const&) );
 
+   FunctionWrapper4perl( bool (perl::Object const&, perl::Object const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( bool (perl::Object const&, perl::Object const&) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
