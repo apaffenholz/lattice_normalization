@@ -158,7 +158,7 @@ namespace polymake {
 
     
     // return the lattice normal form of a lattice polytope
-    Matrix<Integer> lattice_normal_form ( const perl::Object & p ) {
+    Matrix<Integer> affine_lattice_normal_form ( const perl::Object & p ) {
 
       // polytope must be lattice, otherwise the distance matrix is not defined
       if ( ! p.give("LATTICE") ) 
@@ -207,33 +207,36 @@ namespace polymake {
       }
 
 
-      Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(V));
-      
-      for ( int i = 0; i < dmp_list_in.size(); ++i ) {
-	Matrix<Integer> U = common::flint::HermiteNormalForm(dmp_list_in[i].apply_vertex_permutation(V));
-	if ( U < W ) { W = U; }
+      Matrix<Integer> VR = V - repeat_row(V[0],V.rows());
+      Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(VR));
+
+      for ( int j = 1; j < W.rows(); ++j ) {
+	VR = V - repeat_row(V[j],V.rows());
+	for ( int i = 0; i < dmp_list_in.size(); ++i ) {
+	  Matrix<Integer> U = common::flint::HermiteNormalForm(dmp_list_in[i].apply_vertex_permutation(VR));
+	  if ( T(U) < T(W) ) { W = U; }
 #ifdef DEBUG
-	cout << "printing permutation " << i << endl;
-	cout << dmp_list_in[i] << endl;
-	cout << dmp_list_in[i].apply_permutation(A) << endl;
-	cout << W << endl;
+	  cout << "printing permutation " << i << endl;
+	  //	  cout << dmp_list_in[i] << endl;
+	  //	  cout << dmp_list_in[i].apply_permutation(A) << endl;
+	  cout << W << endl;
 #endif
+	}
       }
       
-      // just to return something
       return (ones_vector<Integer>(W.rows()))|W;
     }
 
     bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
 
-      Matrix<Integer> pm = lattice_normal_form(p);
-      Matrix<Integer> qm = lattice_normal_form(q);
+      Matrix<Integer> pm = affine_lattice_normal_form(p);
+      Matrix<Integer> qm = affine_lattice_normal_form(q);
       
       return pm == qm;
     }
     
     
-    UserFunction4perl(" ", &lattice_normal_form, "lattice_normal_form(Polytope)");
+    UserFunction4perl(" ", &affine_lattice_normal_form, "affine_lattice_normal_form(Polytope)");
     UserFunction4perl(" ", &lattice_isomorphic, "lattice_isomorphic(Polytope, Polytope)");
   }
 }
