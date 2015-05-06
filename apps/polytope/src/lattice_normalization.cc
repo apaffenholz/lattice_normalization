@@ -132,14 +132,18 @@ namespace polymake {
 #ifdef DEBUG
 	cout << "[get_all_permutations_for_row] found permuted vector: " << perm.first << endl << "comparing to base: " << base << endl;
 #endif
-	
+
+	// compare the max permutation achieved from permuting row *sit to the overall max seen so far
+	// if to small do nothing
 	if ( perm.first < base ) continue;
 
+	// if larger then dicard the previous permutations
 	if ( perm.first > base ) {
 	  base = perm.first;
 	  dmp_list.clear();
 	}
-	
+
+	// compute the new block decomposition of the columns
 	std::vector<int> rperm = dmp_in.get_rperm();
 	rperm.push_back(*sit);
 	std::vector<int> blocks;
@@ -154,8 +158,8 @@ namespace polymake {
 	  }
 	blocks.push_back(A.cols()-1);
 
+	// initialize a new DistancematrixPermutation and add it
 	DistanceMatrixPermutation dmp(rperm,perm.second,blocks,dmp_in.get_still_available_rows()-*sit);
-
 	dmp_list.push_back(dmp);
       }
 
@@ -169,7 +173,10 @@ namespace polymake {
       if ( ! p.give("LATTICE") ) 
 	throw std::runtime_error("the given polytope is not a lattice polytope");
 
+      // get the lattice distances between vertices and facets
       Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
+
+      // get the vertices and dehomogenize
       Matrix<Integer> V = p.give("VERTICES");
       V = V.minor(All,~scalar2set(0));
 
