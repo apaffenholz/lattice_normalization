@@ -27,15 +27,16 @@ namespace polymake {
     class DistanceMatrixPermutation {
       
     private :
-      std::vector<int> rperm;   // the permutation applied to the rows of the matrix,
-                                // maybe filled only partially if used for constructing possible permutations 
-      std::vector<int> cperm;   // the permutation applied to the columns of the matrix
-      std::vector<int> blocks;  // once some rows of the matrix are already permuted into lex max format
-                                // permutations of columns of further rows are only allowed among those columns that
-                                // are constant on the already permuted rows
-                                // the vector blocks lists these columns in the form
-                                // i1,i2,...,ik, where the already permuted columns are constant on 0..i1, i1+1..i2, i2+1..i3, ...
-      Set<int> still_available_rows;
+      std::vector<int> rperm;        // the permutation applied to the rows of the matrix,
+                                     // maybe filled only partially if used for constructing possible permutations 
+      std::vector<int> cperm;        // the permutation applied to the columns of the matrix
+      std::vector<int> blocks;       // once some rows of the matrix are already permuted into lex max format
+                                     // permutations of columns of further rows are only allowed among those columns that
+                                     // are constant on the already permuted rows
+                                     // the vector blocks lists these columns in the form
+                                     // i1,i2,...,ik, where the already permuted columns are constant on 0..i1, i1+1..i2, i2+1..i3, ...
+      Set<int> still_available_rows; // a list of row indices that are not yet included in the row permutation rperm
+                                     // i.e. the candidate set for the next row added to a potentially max permutation
 
       /*
 	Note that permutations are given in inverted form: cperm[i] is the index that should go into position i in the permuted vector

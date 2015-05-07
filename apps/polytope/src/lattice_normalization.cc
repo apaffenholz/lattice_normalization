@@ -204,12 +204,7 @@ namespace polymake {
       std::vector<DistanceMatrixPermutation> dmp_list_in;
       dmp_list_in.push_back(dmp);
 
-
-      
-#ifdef DEBUG
-      cout << "[lattice_normalization] initial permutation matrix: " << endl << dmp << endl << "-----------------------" << endl;
-#endif
-
+      // generate all possible permutations of the distance matrix that lead to a lex max matrix.
       for ( int i = 0; i < A.rows(); ++i ) {
 	std::vector<DistanceMatrixPermutation> dmp_list;
 	Vector<Integer> base(A.cols());
