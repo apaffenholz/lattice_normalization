@@ -236,6 +236,16 @@ namespace polymake {
 
     bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
 
+      int fp = p.give("N_FACETS");
+      int fq = q.give("N_FACETS");
+      
+      if ( fp != fq ) { return 0; }
+
+      int vp = p.give("N_VERTICES");
+      int vq = q.give("N_VERTICES");
+
+      if ( vp != vq ) { return 0; }
+      
       Matrix<Integer> pm = affine_lattice_normal_form(p);
       Matrix<Integer> qm = affine_lattice_normal_form(q);
       
