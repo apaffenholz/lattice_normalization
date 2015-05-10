@@ -258,6 +258,11 @@ namespace polymake {
       return (ones_vector<Integer>(W.rows()))|W;
     }
 
+    // check whether two lattice polytopes are lattice equivalent
+    // we do this in several steps:
+    // check that they have the same number of facets
+    // check that they have the same number of vertices
+    // check that lattice normalization produces the same HNF
     bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
 
       int fp = p.give("N_FACETS");
