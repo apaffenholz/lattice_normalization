@@ -199,12 +199,23 @@ namespace polymake {
       std::vector<int> blocks(1);
       blocks[0] = A.cols()-1;
 
-      
+
+      // we create the first candidate for a max permutation
+      // initial data: 
+      // now rows have been considered yet, so rperm is empty
+      // column perm is the identity,
+      // previous column perms do not yet reduce possible further column permutation, so we have a single block
+      // all rows still have to be added to the row perm. 
       DistanceMatrixPermutation dmp(rperm,cperm,blocks,sequence(0,A.rows()));
       std::vector<DistanceMatrixPermutation> dmp_list_in;
       dmp_list_in.push_back(dmp);
 
       // generate all possible permutations of the distance matrix that lead to a lex max matrix.
+      // we run over the number of rows
+      // in each round we add one more row to rperm and so th the potential maximal matrix
+      // inside get_allermutations_for_rwo we discard all previously computed potential max if we find a larger one
+      // in each round the function returns a list of all partial permutations such that the already considered rows
+      // can be permuted to the common max matrix
       for ( int i = 0; i < A.rows(); ++i ) {
 	std::vector<DistanceMatrixPermutation> dmp_list;
 	Vector<Integer> base(A.cols());
@@ -214,6 +225,18 @@ namespace polymake {
       }
 
 
+      // now we have a complete list of row/column permutations of the distance matrix
+      // that lead to a maximal distance matrix
+      //
+      // we want to find the minimal Hermite normal form of
+      // the vertices among all possible choices to move one of the vertices into the origin
+      // and apply one of the vertex (column) permutations that lead to a max distance matrix
+      //
+      // equivalently, we could search for the min HNF of the vertices
+      // among all possibilities to move one vertces into the origin, apply one of the vertex (column) permutations
+      // found for the distance matrix and then apply all automorphisms of the max distance matrix
+      //
+      // we initialize the search with moving the first vertex into the origin.
       Matrix<Integer> VR = V - repeat_row(V[0],V.rows());
       Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(VR));
 
