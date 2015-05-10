@@ -240,7 +240,7 @@ namespace polymake {
       Matrix<Integer> VR = V - repeat_row(V[0],V.rows());
       Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(VR));
 
-      for ( int j = 1; j < W.rows(); ++j ) {
+      for ( int j = 0; j < W.rows(); ++j ) {
 	VR = V - repeat_row(V[j],V.rows());
 	for ( int i = 0; i < dmp_list_in.size(); ++i ) {
 	  Matrix<Integer> U = common::flint::HermiteNormalForm(dmp_list_in[i].apply_vertex_permutation(VR));
