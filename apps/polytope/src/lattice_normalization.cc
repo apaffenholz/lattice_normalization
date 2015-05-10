@@ -19,6 +19,7 @@
 #include <polymake/client.h>
 #include <polymake/Matrix.h>
 #include <polymake/Integer.h>
+#include <polymake/Map.h>
 
 #include <vector>
 
@@ -262,6 +263,7 @@ namespace polymake {
     // we do this in several steps:
     // check that they have the same number of facets
     // check that they have the same number of vertices
+    // check that the same vertex facet lattices distances appear in both polytopes
     // check that lattice normalization produces the same HNF
     bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
 
@@ -279,6 +281,25 @@ namespace polymake {
       Integer fwq = q.give("FACET_WIDTH");
       
       if ( fwp != fwq ) { return 0; }
+
+      Matrix<Integer> fvld_p = p.give("FACET_VERTEX_LATTICE_DISTANCES");
+      Matrix<Integer> fvld_q = q.give("FACET_VERTEX_LATTICE_DISTANCES");
+      
+      Map<Integer,int> entry_nonzero;
+      
+      for ( int i = 0; i < fp; ++i ) {
+	for ( int j = 0; j < vp; ++j ) {
+	  if ( fvld_p(i,j) != 0 )
+	    entry_nonzero[fvld_p(i,j)]++;
+	  if ( fvld_q(i,j) != 0 ) 
+	    entry_nonzero[fvld_q(i,j)]--;
+	}
+      }
+
+      for ( Entire<Keys<Map<Integer,int> > >::const_iterator it = entire(keys(entry_nonzero)); !it.at_end(); ++it )
+	if ( entry_nonzero[*it] != 0 ) 
+	  return 0;
+      
       
       Matrix<Integer> pm = affine_lattice_normal_form(p);
       Matrix<Integer> qm = affine_lattice_normal_form(q);
