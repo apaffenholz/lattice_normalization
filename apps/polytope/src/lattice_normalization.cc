@@ -274,6 +274,11 @@ namespace polymake {
       int vq = q.give("N_VERTICES");
 
       if ( vp != vq ) { return 0; }
+
+      Integer fwp = p.give("FACET_WIDTH");
+      Integer fwq = q.give("FACET_WIDTH");
+      
+      if ( fwp != fwq ) { return 0; }
       
       Matrix<Integer> pm = affine_lattice_normal_form(p);
       Matrix<Integer> qm = affine_lattice_normal_form(q);
