@@ -253,7 +253,8 @@ namespace polymake {
 #endif
 	}
       }
-      
+
+      // we have removed the homogenization coordinate, so we have to add this before returning. 
       return (ones_vector<Integer>(W.rows()))|W;
     }
 
