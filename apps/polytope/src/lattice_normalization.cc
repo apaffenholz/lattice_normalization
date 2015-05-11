@@ -76,6 +76,7 @@ namespace polymake {
         *it = k++;
 
       //find a perm maximising the vector using simple insertion sort
+      // respecting the current column block decomposition of the matrix
       // FIXME maybe we can do this more efficiently
       int j = 0;
       for ( int i = 0; i < blocks.size(); ++i ) {
@@ -259,11 +260,18 @@ namespace polymake {
       return (ones_vector<Integer>(W.rows()))|W;
     }
 
+
+
+    
     // check whether two lattice polytopes are lattice equivalent
     // we do this in several steps:
     // check that they have the same number of facets
     // check that they have the same number of vertices
     // check that the same vertex facet lattices distances appear in both polytopes
+    //       (this is an expensive computation, but we need the distances anyway for the normal form)
+    // FIXME does that actually speed up the check?
+    //       what else should be checked before computing a normal form?
+    //       e.g. we could check combinatorial isomorphism
     // check that lattice normalization produces the same HNF
     bool lattice_isomorphic ( const perl::Object & p, const perl::Object & q ) {
 
@@ -282,6 +290,7 @@ namespace polymake {
       
       if ( fwp != fwq ) { return 0; }
 
+      // check the lattice distances between facets and vertices
       Matrix<Integer> fvld_p = p.give("FACET_VERTEX_LATTICE_DISTANCES");
       Matrix<Integer> fvld_q = q.give("FACET_VERTEX_LATTICE_DISTANCES");
       
@@ -300,7 +309,7 @@ namespace polymake {
 	if ( entry_nonzero[*it] != 0 ) 
 	  return 0;
       
-      
+      // if we have survived so far then we actually compute the normal form
       Matrix<Integer> pm = affine_lattice_normal_form(p);
       Matrix<Integer> qm = affine_lattice_normal_form(q);
       
