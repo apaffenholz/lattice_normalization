@@ -32,6 +32,9 @@ namespace polymake {
     //   the decomposition of the column set into blocks, any further row perm must stay inside the blocks so that the already constructed rows don't change
     //     i.e. if rows 1, ..., k are already permuted to an initial max distance matrix,
     //          then any permutation we apply to the next row must leave the first k rows invariant (the entries above the row must be constant in each block)
+    //
+    // FIXME we should check whether it speed up computations if we store the actual permuted matrix instead of recomputing permuted rows if we need them
+    //       for some polytopes we need to create quite a lot of instances of these permutations though
     class DistanceMatrixPermutation {
       
     private :
