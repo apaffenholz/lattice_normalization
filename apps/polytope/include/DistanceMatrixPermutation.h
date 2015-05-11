@@ -24,6 +24,14 @@
 namespace polymake {
   namespace polytope {
 
+    // keeps a partially constructed max distance matrix
+    // we actually only store
+    //   the column permutation
+    //   the permutation for the rows already included in the permuted distance matrix
+    //   the rows we haven't looked at so far
+    //   the decomposition of the column set into blocks, any further row perm must stay inside the blocks so that the already constructed rows don't change
+    //     i.e. if rows 1, ..., k are already permuted to an initial max distance matrix,
+    //          then any permutation we apply to the next row must leave the first k rows invariant (the entries above the row must be constant in each block)
     class DistanceMatrixPermutation {
       
     private :
@@ -62,6 +70,7 @@ namespace polymake {
       const int colsize() const { return cperm.size(); }
       const int blocksize() const { return blocks.size(); }
 
+      // apply a row/column permutation to a distance matrix
       const Matrix<Integer> apply_permutation(const Matrix<Integer>& A) {
 
 	Matrix<Integer> B(A.rows(),A.cols());
@@ -74,7 +83,8 @@ namespace polymake {
 	
 	return C;
       }
-      
+
+      // apply a column permutation to a matrix of vertices
       const Matrix<Integer> apply_vertex_permutation(const Matrix<Integer>& A) {
 
 	Matrix<Integer> B(A.rows(),A.cols());
