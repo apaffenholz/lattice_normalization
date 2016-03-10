@@ -34,5 +34,23 @@ namespace polymake { namespace polytope { namespace {
    }
    FunctionWrapperInstance4perl( bool (perl::Object const&, perl::Object const&) );
 
+   FunctionWrapper4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer>&, pm::Matrix<pm::Integer>&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< Matrix< Integer > > >(), arg1.get< perl::TryCanned< Matrix< Integer > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer>&, pm::Matrix<pm::Integer>&) );
+
+   FunctionWrapper4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer>&, pm::Matrix<pm::Rational>&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< Matrix< Integer > > >(), arg1.get< perl::TryCanned< Matrix< Rational > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer>&, pm::Matrix<pm::Rational>&) );
+
+   FunctionWrapper4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer> const&, pm::Matrix<pm::Integer> const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Integer > > >(), arg1.get< perl::TryCanned< const Matrix< Integer > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer> const&, pm::Matrix<pm::Integer> const&) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

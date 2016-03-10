@@ -27,24 +27,24 @@
 #include <polymake/polytope/DistanceMatrixPermutation.h>
 
 
-namespace polymake { 
+namespace polymake {
 
   namespace polytope {
 
     // apply a permutation perm to a vector v
     // note that permutations are noted in inverted form: perm[i] is the element that should be placed in position i
     Vector<Integer> apply_permutation ( const Vector<Integer> & v, std::vector<int> perm ) {
-      
+
       Vector<Integer> w(v.size());
       for ( int i = 0; i < v.size(); ++i )
-	w[i] = v[perm[i]];
-      
+	     w[i] = v[perm[i]];
+
       return w;
     }
 
-    
 
-    // returns a permutation pi for the vector v such that pi(v) 
+
+    // returns a permutation pi for the vector v such that pi(v)
     // is lex maximal among all permutations of the entries of v
     std::pair<Vector<Integer>, std::vector<int> > FindMaxPermutation ( const Vector<Integer> & v,
 								       const std::vector<int> perm_in,
@@ -129,14 +129,14 @@ namespace polymake {
 					) {
 
       for ( Entire<Set<int> >::const_iterator sit = entire(dmp_in.get_still_available_rows()); !sit.at_end(); ++sit ) {
-	std::pair<Vector<Integer>, std::vector<int> > perm = FindMaxPermutation(A.row(*sit), dmp_in.get_cperm(), dmp_in.get_blocks() );
+		  std::pair<Vector<Integer>, std::vector<int> > perm = FindMaxPermutation(A.row(*sit), dmp_in.get_cperm(), dmp_in.get_blocks() );
 
 #ifdef DEBUG
-	cout << "[get_all_permutations_for_row] found permuted vector: " << perm.first << endl << "comparing to base: " << base << endl;
+		  cout << "[get_all_permutations_for_row] found permuted vector: " << perm.first << endl << "comparing to base: " << base << endl;
 #endif
 
-	// compare the max permutation achieved from permuting row *sit to the overall max seen so far
-	// if to small do nothing
+		  // compare the max permutation achieved from permuting row *sit to the overall max seen so far
+		  // if to small do nothing
 	if ( perm.first < base ) continue;
 
 	// if larger then dicard the previous permutations
@@ -167,24 +167,15 @@ namespace polymake {
 
     }
 
-    
+
     // return the lattice normal form of a lattice polytope
-    Matrix<Integer> affine_lattice_normal_form ( const perl::Object & p ) {
+    Matrix<Integer> compute_lattice_normal_form ( const Matrix<Integer>& Vin, const Matrix<Integer>& A ) {
 
-      // polytope must be lattice, otherwise the distance matrix is not defined
-      if ( ! p.give("LATTICE") ) 
-	throw std::runtime_error("the given polytope is not a lattice polytope");
+      Matrix<Integer> V = Vin.minor(All,~scalar2set(0));
 
-      // get the lattice distances between vertices and facets
-      Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
-
-      // get the vertices and dehomogenize
-      Matrix<Integer> V = p.give("VERTICES");
-      V = V.minor(All,~scalar2set(0));
-
-      // initialize a permutation fo the rows, will be built up sequentially
+      // initialize a permutation of the rows, will be built up sequentially
       std::vector<int> rperm;
-      
+
       // initialize a permutation of the columns with the identity permutation
       std::vector<int> cperm(A.cols());
       int k = 0;
@@ -195,7 +186,7 @@ namespace polymake {
       // a permutation of row j applied to all rows must not change rows 1 to j-1
       // hence, a permutation of row j can only permute entries in blocks for
       // which the columns above the entries in a block are equal
-      // 
+      //
       // initially we can permute the complete row, so we have a single
       // block of size equal to the number of columns
       std::vector<int> blocks(1);
@@ -203,15 +194,15 @@ namespace polymake {
 
 
       // we create the first candidate for a max permutation
-      // initial data: 
+      // initial data:
       // now rows have been considered yet, so rperm is empty
       // column perm is the identity,
       // previous column perms do not yet reduce possible further column permutation, so we have a single block
-      // all rows still have to be added to the row perm. 
+      // all rows still have to be added to the row perm.
       DistanceMatrixPermutation dmp(rperm,cperm,blocks,sequence(0,A.rows()));
       std::vector<DistanceMatrixPermutation> dmp_list_in;
       dmp_list_in.push_back(dmp);
-
+	  
       // generate all possible permutations of the distance matrix that lead to a lex max matrix.
       // we run over the number of rows
       // in each round we add one more row to rperm and so th the potential maximal matrix
@@ -219,13 +210,12 @@ namespace polymake {
       // in each round the function returns a list of all partial permutations such that the already considered rows
       // can be permuted to the common max matrix
       for ( int i = 0; i < A.rows(); ++i ) {
-	std::vector<DistanceMatrixPermutation> dmp_list;
-	Vector<Integer> base(A.cols());
-	for ( std::vector<DistanceMatrixPermutation>::const_iterator dmp_it = dmp_list_in.begin(); dmp_it != dmp_list_in.end(); ++dmp_it ) 
-	  get_all_permutations_for_row(0,*dmp_it,A,dmp_list,base);
-	dmp_list_in = dmp_list;
+		  std::vector<DistanceMatrixPermutation> dmp_list;
+		  Vector<Integer> base(A.cols());
+		  for ( std::vector<DistanceMatrixPermutation>::const_iterator dmp_it = dmp_list_in.begin(); dmp_it != dmp_list_in.end(); ++dmp_it )
+			  get_all_permutations_for_row(0,*dmp_it,A,dmp_list,base);
+		  dmp_list_in = dmp_list;
       }
-
 
       // now we have a complete list of row/column permutations of the distance matrix
       // that lead to a maximal distance matrix
@@ -240,6 +230,7 @@ namespace polymake {
       //
       // we initialize the search with moving the first vertex into the origin.
       Matrix<Integer> VR = V - repeat_row(V[0],V.rows());
+	  
       Matrix<Integer> W = common::flint::HermiteNormalForm(dmp_list_in[0].apply_vertex_permutation(VR));
 
       for ( int j = 0; j < W.rows(); ++j ) {
@@ -256,13 +247,28 @@ namespace polymake {
 	}
       }
 
-      // we have removed the homogenization coordinate, so we have to add this before returning. 
+      // we have removed the homogenization coordinate, so we have to add this before returning.
       return (ones_vector<Integer>(W.rows()))|W;
     }
 
 
+    // return the lattice normal form of a lattice polytope
+    Matrix<Integer> affine_lattice_normal_form ( const perl::Object & p ) {
+	
+    	// polytope must be lattice, otherwise the distance matrix is not defined
+		if ( ! p.give("LATTICE") )
+			throw std::runtime_error("the given polytope is not a lattice polytope");
 
-    
+        // get the lattice distances between vertices and facets
+        Matrix<Integer> A = p.give("FACET_VERTEX_LATTICE_DISTANCES");
+
+        // get the vertices and dehomogenize
+        Matrix<Integer> V = p.give("VERTICES");
+	
+		return compute_lattice_normal_form(V,A);
+	}
+
+
     // check whether two lattice polytopes are lattice equivalent
     // we do this in several steps:
     // check that they have the same number of facets
@@ -277,7 +283,7 @@ namespace polymake {
 
       int fp = p.give("N_FACETS");
       int fq = q.give("N_FACETS");
-      
+
       if ( fp != fq ) { return 0; }
 
       int vp = p.give("N_VERTICES");
@@ -287,42 +293,47 @@ namespace polymake {
 
       Integer fwp = p.give("FACET_WIDTH");
       Integer fwq = q.give("FACET_WIDTH");
-      
+
       if ( fwp != fwq ) { return 0; }
 
       // check the lattice distances between facets and vertices
       Matrix<Integer> fvld_p = p.give("FACET_VERTEX_LATTICE_DISTANCES");
       Matrix<Integer> fvld_q = q.give("FACET_VERTEX_LATTICE_DISTANCES");
-      
+
       Map<Integer,int> entry_nonzero;
-      
+
       for ( int i = 0; i < fp; ++i ) {
 	for ( int j = 0; j < vp; ++j ) {
 	  if ( fvld_p(i,j) != 0 )
 	    entry_nonzero[fvld_p(i,j)]++;
-	  if ( fvld_q(i,j) != 0 ) 
+	  if ( fvld_q(i,j) != 0 )
 	    entry_nonzero[fvld_q(i,j)]--;
 	}
       }
 
       for ( Entire<Keys<Map<Integer,int> > >::const_iterator it = entire(keys(entry_nonzero)); !it.at_end(); ++it )
-	if ( entry_nonzero[*it] != 0 ) 
+	if ( entry_nonzero[*it] != 0 )
 	  return 0;
-      
+
       // if we have survived so far then we actually compute the normal form
       Matrix<Integer> pm = affine_lattice_normal_form(p);
       Matrix<Integer> qm = affine_lattice_normal_form(q);
-      
+
       return pm == qm;
     }
-    
-    
+
+
+
+
+    Function4perl( &compute_lattice_normal_form, "compute_lattice_normal_form( Matrix, Matrix )");
+
+
     UserFunction4perl("# @category Geometry\n"
       "# Takes a lattice polytope and computes the affine normal form of the vertices as defined in ."
       "\tA. Grinis, Kasprzyk, Normal Forms of Polytopes, arxiv:1301.6641, Jan 2013\n"
       "# @param LatticePolytope P\n"
       "# @return Matrix<Integer>", &affine_lattice_normal_form, "affine_lattice_normal_form(Polytope)");
-    
+
     UserFunction4perl("# @category Comparing\n"
       "# Checks whether two lattice polytopes are lattice isomoprhic by comparing their normal forms.\n"
       "# @param LatticePolytope P\n"
