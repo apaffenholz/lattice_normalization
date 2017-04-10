@@ -1,0 +1,58 @@
+#######################################################################
+# Copyright (c) 2014-2016
+# Silke Horn, Andreas Paffenholz (Technische Universitaet Darmstadt, Germany)
+# http://www.polymake.org
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version: http://www.gnu.org/licenses/gpl.txt.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+########################################################################
+
+use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
+
+object_specialization Polytope::Lattice {
+	
+	# @category Lattice points in polytopes
+	# The lattice normal form of a lattice polytope
+	# computed with the algorithm from
+	# 	A. Grinis, Kasprzyk, Normal Forms of Polytopes, arxiv:1301.6641, Jan 2013
+	property LATTICE_NORMAL_FORM : Matrix<Integer>;
+	
+	# @category Lattice points in polytopes
+	# The sha1 hash of [[LATTICE_NORMAL_FORM]]
+	property LATTICE_NORMAL_FORM_HASH : String;
+
+	
+	rule LATTICE_NORMAL_FORM : FACET_VERTEX_LATTICE_DISTANCES, VERTICES {
+		$this->LATTICE_NORMAL_FORM = compute_lattice_normal_form($this->VERTICES, $this->FACET_VERTEX_LATTICE_DISTANCES);
+	}
+	
+	rule LATTICE_NORMAL_FORM_HASH : LATTICE_NORMAL_FORM {
+		$this->LATTICE_NORMAL_FORM_HASH = sha1_hex($this->LATTICE_NORMAL_FORM);
+	}
+
+}
+
+user_function spanning_polytope {
+	my $p = shift;
+	if ( !$p->FULL_DIM ) {
+		die "spanning polytopes can only be computed for full dimensional polytopes";
+	}
+	
+	my $snf = smith_normal_form(dehomogenize($p->LATTICE_POINTS));
+	my $q=new Polytope(POINTS=>(ones_vector<Integer>($p->N_LATTICE_POINTS))|$snf->left_companion->minor(All,range(0,$p->DIM-1)));
+	return $q;
+}
+
+user_function reeve_simplex {
+	my $a = shift;
+	my $m = new Matrix([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,1,1,$a]]);
+	my $q=new Polytope(VERTICES=>$m);
+	return $q;
+}
