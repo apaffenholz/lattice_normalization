@@ -18,6 +18,8 @@
 
 #include <polymake/client.h>
 #include <polymake/Matrix.h>
+#include <polymake/SparseVector.h>
+#include <polymake/Vector.h>
 #include <polymake/Integer.h>
 #include <polymake/Map.h>
 
@@ -322,10 +324,6 @@ namespace polymake {
       return pm == qm;
     }
 
-
-
-
-    Function4perl( &compute_lattice_normal_form, "compute_lattice_normal_form( Matrix, Matrix )");
 
 
     UserFunction4perl("# @category Geometry\n"
