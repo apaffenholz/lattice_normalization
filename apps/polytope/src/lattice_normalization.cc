@@ -138,11 +138,11 @@ namespace polymake {
 #endif
 
 		  // compare the max permutation achieved from permuting row *sit to the overall max seen so far
-		  // if to small do nothing
-	if ( perm.first < base ) continue;
+		  // if too small do nothing
+	if ( lex_compare(perm.first,base)==pm::cmp_lt ) continue;
 
-	// if larger then dicard the previous permutations
-	if ( perm.first > base ) {
+	// if larger then discard the previous permutations
+	if ( lex_compare(perm.first, base) == pm::cmp_gt ) {
 	  base = perm.first;
 	  dmp_list.clear();
 	}
@@ -239,7 +239,7 @@ namespace polymake {
 	VR = V - repeat_row(V[j],V.rows());
 	for ( int i = 0; i < dmp_list_in.size(); ++i ) {
 	  Matrix<Integer> U = common::flint::HermiteNormalForm(dmp_list_in[i].apply_vertex_permutation(VR));
-	  if ( T(U) < T(W) ) { W = U; }
+	  if ( lex_compare(T(U),T(W))==pm::cmp_lt ) { W = U; }
 #ifdef DEBUG
 	  cout << "printing permutation " << i << endl;
 	  //	  cout << dmp_list_in[i] << endl;
